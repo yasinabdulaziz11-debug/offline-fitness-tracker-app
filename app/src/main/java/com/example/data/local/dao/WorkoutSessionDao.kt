@@ -56,6 +56,9 @@ interface WorkoutSessionDao {
     @Query("SELECT * FROM session_exercises")
     suspend fun getAllSessionExercises(): List<SessionExerciseEntity>
 
+    @Query("SELECT * FROM session_exercises")
+    fun getAllSessionExercisesFlow(): Flow<List<SessionExerciseEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSessionExercise(exercise: SessionExerciseEntity): Long
 
@@ -77,6 +80,9 @@ interface WorkoutSessionDao {
 
     @Query("SELECT * FROM workout_sets")
     suspend fun getAllSets(): List<WorkoutSetEntity>
+
+    @Query("SELECT * FROM workout_sets")
+    fun getAllSetsFlow(): Flow<List<WorkoutSetEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSet(set: WorkoutSetEntity): Long

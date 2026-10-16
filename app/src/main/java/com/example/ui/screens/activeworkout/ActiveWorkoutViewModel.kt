@@ -149,30 +149,43 @@ class ActiveWorkoutViewModel(
         closeExercisePicker()
         viewModelScope.launch {
             workoutRepository.addExerciseToActiveSession(exerciseId)
+            refreshCurrentSession()
         }
     }
 
     fun removeExercise(sessionExerciseId: Long) {
         viewModelScope.launch {
             workoutRepository.removeExerciseFromSession(sessionExerciseId)
+            refreshCurrentSession()
         }
     }
 
     fun addSet(sessionExerciseId: Long) {
         viewModelScope.launch {
             workoutRepository.addSetToExercise(sessionExerciseId)
+            refreshCurrentSession()
         }
     }
 
     fun removeSet(setId: Long) {
         viewModelScope.launch {
             workoutRepository.removeSet(setId)
+            refreshCurrentSession()
+        }
+    }
+
+    private suspend fun refreshCurrentSession() {
+        val active = workoutRepository.getActiveSession()
+        if (active != null) {
+            val detail = workoutRepository.getSessionDetail(active.id)
+            _uiState.value = _uiState.value.copy(sessionDetail = detail)
         }
     }
 
     fun updateSet(set: WorkoutSetEntity) {
         viewModelScope.launch {
             workoutRepository.updateSet(set)
+            refreshCurrentSession()
         }
     }
 

@@ -15,6 +15,8 @@ import com.example.data.local.entity.WorkoutSessionEntity
 import com.example.data.local.entity.WorkoutSetEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -30,13 +32,22 @@ class WorkoutRepository(private val database: AppDatabase) {
     // --- Active Workout Flow ---
     val activeSessionFlow: Flow<WorkoutSessionEntity?> = sessionDao.getActiveSessionFlow()
 
-    fun getActiveSessionDetailFlow(): Flow<WorkoutSessionDetail?> = flow {
-        sessionDao.getActiveSessionFlow().collect { activeSession ->
-            if (activeSession == null) {
-                emit(null)
-            } else {
-                emit(getSessionDetail(activeSession.id))
-            }
+    private val sessionUpdateTrigger = MutableStateFlow(0L)
+
+    fun notifySessionUpdated() {
+        sessionUpdateTrigger.value++
+    }
+
+    fun getActiveSessionDetailFlow(): Flow<WorkoutSessionDetail?> = combine(
+        sessionDao.getActiveSessionFlow(),
+        sessionDao.getAllSessionExercisesFlow(),
+        sessionDao.getAllSetsFlow(),
+        sessionUpdateTrigger
+    ) { activeSession, _, _, _ ->
+        if (activeSession == null) {
+            null
+        } else {
+            getSessionDetail(activeSession.id)
         }
     }.flowOn(Dispatchers.IO)
 
@@ -55,7 +66,9 @@ class WorkoutRepository(private val database: AppDatabase) {
             startTime = System.currentTimeMillis(),
             status = SessionStatus.ACTIVE
         )
-        sessionDao.insertSession(session)
+        val id = sessionDao.insertSession(session)
+        notifySessionUpdated()
+        id
     }
 
     suspend fun startWorkoutFromRoutine(routineId: Long): Long = withContext(Dispatchers.IO) {
@@ -87,7 +100,7 @@ class WorkoutRepository(private val database: AppDatabase) {
             }
             sessionDao.insertSets(sets)
         }
-
+        notifySessionUpdated()
         sessionId
     }
 
@@ -117,11 +130,13 @@ class WorkoutRepository(private val database: AppDatabase) {
             )
         )
 
+        notifySessionUpdated()
         sessionExerciseId
     }
 
     suspend fun removeExerciseFromSession(sessionExerciseId: Long) = withContext(Dispatchers.IO) {
         sessionDao.deleteSessionExerciseById(sessionExerciseId)
+        notifySessionUpdated()
     }
 
     suspend fun addSetToExercise(sessionExerciseId: Long) = withContext(Dispatchers.IO) {
@@ -140,18 +155,22 @@ class WorkoutRepository(private val database: AppDatabase) {
             isCompleted = false
         )
         sessionDao.insertSet(newSet)
+        notifySessionUpdated()
     }
 
     suspend fun updateSet(set: WorkoutSetEntity) = withContext(Dispatchers.IO) {
         sessionDao.updateSet(set)
+        notifySessionUpdated()
     }
 
     suspend fun removeSet(setId: Long) = withContext(Dispatchers.IO) {
         sessionDao.deleteSetById(setId)
+        notifySessionUpdated()
     }
 
     suspend fun cancelActiveWorkout(sessionId: Long) = withContext(Dispatchers.IO) {
         sessionDao.deleteSessionById(sessionId)
+        notifySessionUpdated()
     }
 
     suspend fun finishWorkout(sessionId: Long, finalDurationSeconds: Long, notes: String): WorkoutSummaryData = withContext(Dispatchers.IO) {
@@ -172,6 +191,7 @@ class WorkoutRepository(private val database: AppDatabase) {
             status = SessionStatus.COMPLETED
         )
         sessionDao.updateSession(updated)
+        notifySessionUpdated()
 
         // Now calculate new PRs achieved in this workout
         val currentPRs = getAllPersonalRecords()
@@ -247,10 +267,12 @@ class WorkoutRepository(private val database: AppDatabase) {
     suspend fun updateSession(sessionId: Long, name: String, notes: String) = withContext(Dispatchers.IO) {
         val session = sessionDao.getSessionById(sessionId) ?: return@withContext
         sessionDao.updateSession(session.copy(name = name, notes = notes))
+        notifySessionUpdated()
     }
 
     suspend fun deleteSession(sessionId: Long) = withContext(Dispatchers.IO) {
         sessionDao.deleteSessionById(sessionId)
+        notifySessionUpdated()
     }
 
     // --- Exercise Library ---

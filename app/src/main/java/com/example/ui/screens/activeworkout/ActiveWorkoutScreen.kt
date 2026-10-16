@@ -457,30 +457,15 @@ private fun ExerciseCard(
                     )
                 }
 
-                Box {
-                    IconButton(onClick = { menuExpanded = true }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Exercise options"
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = onRemoveExercise,
+                        modifier = Modifier.testTag("remove_exercise_${detail.sessionExercise.id}")
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("Remove Exercise", color = MaterialTheme.colorScheme.error) },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                            },
-                            onClick = {
-                                menuExpanded = false
-                                onRemoveExercise()
-                            }
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Remove exercise",
+                            tint = MaterialTheme.colorScheme.error
                         )
                     }
                 }
@@ -556,23 +541,25 @@ private fun ExerciseCard(
             }
 
             // Add Set Button
-            TextButton(
+            OutlinedButton(
                 onClick = onAddSet,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .testTag("add_set_button_${detail.sessionExercise.id}")
+                    .testTag("add_set_button_${detail.sessionExercise.id}"),
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Add Set",
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
@@ -828,24 +815,45 @@ private fun ExercisePickerDialog(
                 ) {
                     items(filtered) { exercise ->
                         Surface(
-                            shape = RoundedCornerShape(10.dp),
+                            shape = RoundedCornerShape(12.dp),
                             color = MaterialTheme.colorScheme.surfaceVariant,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { onSelectExercise(exercise.id) }
                                 .testTag("exercise_picker_item_${exercise.id}")
                         ) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text(
-                                    text = exercise.name,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = "${exercise.muscleGroup.displayName} • ${exercise.equipment.displayName}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = exercise.name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        text = "${exercise.muscleGroup.displayName} • ${exercise.equipment.displayName}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Button(
+                                    onClick = { onSelectExercise(exercise.id) },
+                                    shape = RoundedCornerShape(8.dp),
+                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Add", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                }
                             }
                         }
                     }
