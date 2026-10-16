@@ -1,0 +1,6 @@
+{
+  "name": "Offline Fitness Tracker",
+  "description": "Fast, private, 100% offline fitness, workout, and body progress tracker with local database storage.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
