@@ -53,6 +53,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -90,7 +91,14 @@ fun ActiveWorkoutScreen(
     val timerState by viewModel.restTimerManager.timerState.collectAsStateWithLifecycle()
 
     BackHandler {
+        viewModel.restTimerManager.dismissTimer()
         onNavigateBack()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.restTimerManager.dismissTimer()
+        }
     }
 
     Scaffold(
@@ -813,7 +821,7 @@ private fun ExercisePickerDialog(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    items(filtered) { exercise ->
+                    items(filtered, key = { it.id }) { exercise ->
                         Surface(
                             shape = RoundedCornerShape(12.dp),
                             color = MaterialTheme.colorScheme.surfaceVariant,

@@ -265,7 +265,7 @@ fun RoutineDetailScreen(
                     )
                 }
             } else {
-                itemsIndexed(items) { index, item ->
+                itemsIndexed(items, key = { index, item -> "${item.exercise.id}_$index" }) { index, item ->
                     RoutineExerciseEditCard(
                         item = item,
                         index = index + 1,
@@ -290,7 +290,7 @@ fun RoutineDetailScreen(
                         .height(350.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(availableExercises) { ex ->
+                    items(availableExercises, key = { it.id }) { ex ->
                         androidx.compose.material3.Surface(
                             shape = RoundedCornerShape(10.dp),
                             color = MaterialTheme.colorScheme.surfaceVariant,

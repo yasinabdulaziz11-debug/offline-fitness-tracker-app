@@ -5,7 +5,12 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "workout_routines")
+@Entity(
+    tableName = "workout_routines",
+    indices = [
+        Index("createdAt")
+    ]
+)
 data class WorkoutRoutineEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

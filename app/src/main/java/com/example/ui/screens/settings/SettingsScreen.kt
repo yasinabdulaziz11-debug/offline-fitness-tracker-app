@@ -564,11 +564,12 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "• Zero Network Permission: The application does NOT declare android.permission.INTERNET in AndroidManifest.xml. It cannot establish socket or HTTP connections.\n" +
-                                "• Zero Third-Party Analytics: No telemetry SDKs, trackers, or advertising libraries are embedded.\n" +
-                                "• Local Storage Only: All workouts, routines, and measurements reside exclusively in an on-device SQLite database.\n" +
-                                "• User-Controlled Backups: Backup exports are generated on-demand and saved directly to the Android file location of your choice.\n" +
-                                "• Android Permissions: Only android.permission.VIBRATE is declared to provide haptic feedback when the rest timer reaches zero."
+                        text = "• Zero Internet Permission: The app does NOT request or declare android.permission.INTERNET. It cannot make network or HTTP requests, and cannot access the internet.\n\n" +
+                                "• Completely Local Database: 100% of your workouts, routines, exercise catalog, personal records, and measurements are stored on-device in a local SQLite database (offline_fitness.db).\n\n" +
+                                "• No Third-Party Cloud SDKs: All Firebase, Google Play services, telemetry, analytics, and advertising libraries have been completely removed.\n\n" +
+                                "• Zero Account & Zero Tracking: No login, no account creation, no cookies, and no device fingerprinting. Your fitness data never leaves your device.\n\n" +
+                                "• User-Controlled Backups: Export and import standard JSON and CSV files on demand using Android's native system file picker directly to your local storage or SD card.\n\n" +
+                                "• Single System Permission: Only android.permission.VIBRATE is used to provide haptic feedback when your rest timer finishes."
                     )
                 }
             },

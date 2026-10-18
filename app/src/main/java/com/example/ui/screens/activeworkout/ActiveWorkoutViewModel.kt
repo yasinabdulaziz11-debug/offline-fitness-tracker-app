@@ -271,6 +271,12 @@ class ActiveWorkoutViewModel(
         onDismissed()
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        timerJob?.cancel()
+        restTimerManager.dismissTimer()
+    }
+
     class Factory(
         private val workoutRepository: WorkoutRepository,
         private val preferencesRepository: UserPreferencesRepository,

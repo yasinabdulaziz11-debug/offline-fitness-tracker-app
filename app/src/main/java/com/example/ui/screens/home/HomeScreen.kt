@@ -282,7 +282,7 @@ fun HomeScreen(
                         contentPadding = PaddingValues(horizontal = 20.dp),
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
-                        items(state.templates) { template ->
+                        items(state.templates, key = { it.id }) { template ->
                             RoutineTemplateCard(
                                 template = template,
                                 onStart = {

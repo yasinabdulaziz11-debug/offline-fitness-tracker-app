@@ -19,3 +19,25 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Room Database ProGuard / R8 keep rules
+-keep class * extends androidx.room.RoomDatabase
+-dontwarn androidx.room.paging.**
+-keep class androidx.room.** { *; }
+
+# Keep all Room entities, DAOs, converters, and database implementation
+-keep @androidx.room.Entity class * { *; }
+-keep class * implements androidx.room.RoomDatabase
+-keepclassmembers class * {
+    @androidx.room.Dao *;
+    @androidx.room.TypeConverter *;
+}
+-keep class com.example.data.local.entity.** { *; }
+-keep class com.example.data.local.dao.** { *; }
+-keep class com.example.data.local.AppDatabase* { *; }
+-keep class com.example.data.local.AppDatabase_Impl { *; }
+-keep class * extends androidx.room.migration.Migration
+
+# Preserve annotations and signatures
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+

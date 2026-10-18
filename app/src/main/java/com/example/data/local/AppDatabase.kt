@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.data.local.dao.ExerciseDao
 import com.example.data.local.dao.MeasurementDao
@@ -31,7 +32,7 @@ import kotlinx.coroutines.launch
         WorkoutSetEntity::class,
         BodyMeasurementEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -45,6 +46,18 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_workout_sessions_startTime` ON `workout_sessions` (`startTime`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_workout_sessions_routineId` ON `workout_sessions` (`routineId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_workout_sets_completedAt` ON `workout_sets` (`completedAt`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_body_measurements_timestamp` ON `body_measurements` (`timestamp`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_workout_routines_createdAt` ON `workout_routines` (`createdAt`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_exercises_muscleGroup` ON `exercises` (`muscleGroup`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_exercises_category` ON `exercises` (`category`)")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -52,6 +65,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "offline_fitness.db"
                 )
+                    .addMigrations(MIGRATION_1_2)
                     .addCallback(DatabaseCallback())
                     .build()
                 INSTANCE = instance

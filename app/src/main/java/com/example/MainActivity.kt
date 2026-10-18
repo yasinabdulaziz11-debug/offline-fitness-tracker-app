@@ -57,6 +57,8 @@ import com.example.ui.theme.OfflineFitnessTheme
 
 class MainActivity : ComponentActivity() {
 
+    private lateinit var restTimerManager: RestTimerManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -65,7 +67,7 @@ class MainActivity : ComponentActivity() {
         val workoutRepository = WorkoutRepository(database)
         val preferencesRepository = UserPreferencesRepository(applicationContext)
         val backupManager = BackupManager(database)
-        val restTimerManager = RestTimerManager(applicationContext)
+        restTimerManager = RestTimerManager(applicationContext)
 
         setContent {
             val userPrefs by preferencesRepository.userPreferencesFlow.collectAsStateWithLifecycle(
@@ -80,6 +82,13 @@ class MainActivity : ComponentActivity() {
                     restTimerManager = restTimerManager
                 )
             }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (::restTimerManager.isInitialized) {
+            restTimerManager.dismissTimer()
         }
     }
 }
